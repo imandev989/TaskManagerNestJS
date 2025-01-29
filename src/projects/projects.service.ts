@@ -4,27 +4,30 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from './entities/project.entity';
 import { Repository } from 'typeorm';
+import ProjectStatusEnum from './enums/projectStatusEnum';
 
 @Injectable()
 export class ProjectsService {
-
   constructor(
     @InjectRepository(Project)
-    private readonly projectRepository: Repository<Project>
-  ) { }
+    private readonly projectRepository: Repository<Project>,
+  ) {}
 
   async create(createProjectDto: CreateProjectDto): Promise<Project> {
     try {
       const newProject = this.projectRepository.create(createProjectDto);
-      return await this.projectRepository.save(newProject)
+      return await this.projectRepository.save(newProject);
     } catch (error) {
-      throw new BadRequestException("Error Creating Project")
+      throw new BadRequestException('Error Creating Project');
     }
   }
 
-  async findAll() {
+  async findAll(status?: ProjectStatusEnum) {
     const query = this.projectRepository.createQueryBuilder('projects');
-    return await query.getMany()
+    if (status) {
+      query.where('projects.status = :status', { status });
+    }
+    return await query.getMany();
   }
 
   findOne(id: number) {
