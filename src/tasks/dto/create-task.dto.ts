@@ -14,7 +14,7 @@ export class CreateTaskDto {
   title: string;
 
   @IsString({ message: 'description must be String' })
-  @MinLength(10, { message: 'title must be at least 10 characters' })
+  @MinLength(10, { message: 'description must be at least 10 characters' })
   @IsOptional()
   description: string;
 
@@ -23,4 +23,6 @@ export class CreateTaskDto {
   })
   @IsOptional()
   status: TaskStatusEnum;
+  @IsNotEmpty({message:"you must insert project"})
+  projectId: number;
 }
