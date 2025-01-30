@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
+import TaskStatusEnum from './enums/taskStatusEnum';
 
 @Controller('tasks')
 export class TasksController {
@@ -20,8 +21,14 @@ export class TasksController {
   }
 
   @Get()
-  async findAll(@Res() res: Response) {
-    const tasks = await this.tasksService.findAll();
+  async findAll(
+    @Res() res: Response
+    @Query('status') status?: TaskStatusEnum,
+    @Query('limit') limit: number = 10,
+    @Query('page') page: number = 1
+
+  ) {
+    const tasks = await this.tasksService.findAll(status, limit, page);
 
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
