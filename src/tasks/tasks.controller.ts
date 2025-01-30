@@ -22,8 +22,8 @@ export class TasksController {
 
   @Get()
   async findAll(
-    @Res() res: Response
-    @Query('status') status?: TaskStatusEnum,
+    @Res() res: Response,
+    @Query('status') status: TaskStatusEnum,
     @Query('limit') limit: number = 10,
     @Query('page') page: number = 1
 
@@ -38,8 +38,13 @@ export class TasksController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res: Response) {
+    const task = await this.tasksService.findOne(+id);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      data: task,
+      message: "Task Recive Successfully"
+    })
   }
 
   @Patch(':id')

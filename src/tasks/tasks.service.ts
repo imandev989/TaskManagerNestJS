@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Res } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Res } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -41,15 +41,30 @@ export class TasksService {
 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: number) {
+
+    const task = await this.taskRepository.findOne({ where: { id }, relations: ['project'] });
+    if (!task) throw new NotFoundException(`Taks ${id} Not Found`)
+    return task
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: number, updateTaskDto: UpdateTaskDto) {
+    const task = await this.taskRepository.findOneBy({ id });
+    if (!task) {
+      throw new NotFoundException(`Taks ${id} Not Found`);
+    }
+    try {
+      const updateTask = await this.taskRepository.update(id, updateTaskDto)
+      return updateTask
+    } catch {
+      throw new BadRequestException("updated field")
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: number) {
+    const result = await this.taskRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`task ${id} not Found`)
+    }
   }
 }
